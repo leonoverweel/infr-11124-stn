@@ -6,7 +6,7 @@ tree = ET.parse('data/station-list.xml')
 
 with open('data/stations.csv', 'w') as outfile:
     writer = csv.writer(outfile)
-    writer.writerow(['Code', 'Name', 'Country', 'Latitude', 'Longitude'])
+    writer.writerow(['Code', 'Name', 'Latitude', 'Longitude'])
 
     for station in tree.getroot():
         code = station.find('Code').text
@@ -18,4 +18,4 @@ with open('data/stations.csv', 'w') as outfile:
         if country != 'NL':
             continue
 
-        writer.writerow([code, name, country, latitude, longitude])
+        writer.writerow([code, name, latitude, longitude])
