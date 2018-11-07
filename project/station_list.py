@@ -2,7 +2,7 @@ import csv
 import xml.etree.ElementTree as ET
 
 # http://webservices.ns.nl/ns-api-stations-v2 (requires basic auth)
-tree = ET.parse('data/station-list.xml')
+tree = ET.parse('data/stations-raw.xml')
 
 with open('data/stations.csv', 'w') as outfile:
     writer = csv.writer(outfile)
