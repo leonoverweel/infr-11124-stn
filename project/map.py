@@ -4,6 +4,7 @@ from cartopy.io import shapereader
 import numpy as np
 import geopandas
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import cartopy.crs as ccrs
 
 
@@ -14,13 +15,14 @@ def plot_netherlands(ax):
     ax.add_geometries(
         poly, 
         crs=ccrs.PlateCarree(), 
-        facecolor='0.8'
+        facecolor='0.6',
     )
 
 
 def plot_stations(ax):
     longs = []
     lats = []
+    scores = []
 
     with open('data/stations.csv') as stations_file:
         station_reader = csv.reader(stations_file)
@@ -29,12 +31,31 @@ def plot_stations(ax):
         for station in station_reader:
             longs.append(float(station[2]))
             lats.append(float(station[3]))
+            scores.append(np.random.rand())
+
+    cdict = {
+        'red': (
+            (0.0, 1, 1),
+            (0.5, 1, 1),
+            (1.0, 0, 0)),
+        'green': (
+            (0.0, 0, 0),
+            (0.5, 1, 1),
+            (1.0, 1, 1)),
+        'blue':  (
+            (0.0, 0, 0),
+            (1.0, 0, 0))
+    }
+    cmap = colors.LinearSegmentedColormap('GnRd', cdict)
 
     ax.scatter(
         np.array(lats), 
         np.array(longs), 
-        c='k',
-        s=10,
+        c=scores,
+        cmap=cmap,
+        vmin=0,
+        vmax=1,
+        s=20,
         transform=ccrs.PlateCarree(), 
         zorder=2
     )
