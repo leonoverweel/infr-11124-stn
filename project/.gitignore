@@ -115,3 +115,4 @@ dmypy.json
 
 # Own stuff
 data/
+.idea/
