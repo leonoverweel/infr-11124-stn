@@ -28,8 +28,7 @@ with open('data/routes.csv') as routes_file:
             'legs': [tuple(leg.split('->')) for leg in option_data[5].split()],
             'crowd': [CROWD_MAP[crowd] for crowd in option_data[6].split()],
             'punctuality': [float(punctuality) if punctuality != 'None' else -1 
-                for punctuality in option_data[7].split()],
-            'scores': {'c': 0, 'd': 0, 'f': 0, 'p': 0, 'l': 0}
+                for punctuality in option_data[7].split()]
         }
 
         # Filter on arriving between 8:00 and 9:00
@@ -41,3 +40,19 @@ with open('data/routes.csv') as routes_file:
             continue
 
         stations[station_id].append(option)
+
+scores = {}
+
+for station_id in stations:
+    scores[station_id] = {}
+
+    # Crowd scores: the score for the most crowded leg of each option
+    scores[station_id]['c'] = [max(option['crowd']) for option in stations[station_id]]
+
+    # Duration scores: (minutes to get to ASD) / 120 for each option
+    scores[station_id]['d'] = [option['minutes'].seconds / (60 * 120) 
+        for option in stations[station_id]]
+
+    break
+
+pprint(scores)
