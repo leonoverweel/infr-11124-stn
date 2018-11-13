@@ -1,8 +1,10 @@
 import csv
 from datetime import datetime, timedelta, time
-
 from pprint import pprint
 
+import numpy as np
+
+# Read in routes.csv
 CROWD_MAP = {
     'LOW': 0,
     'MEDIUM': 0.5,
@@ -27,7 +29,7 @@ with open('data/routes.csv') as routes_file:
             'minutes': timedelta(minutes=int(option_data[4])),
             'legs': [tuple(leg.split('->')) for leg in option_data[5].split()],
             'crowd': [CROWD_MAP[crowd] for crowd in option_data[6].split()],
-            'punctuality': [float(punctuality) if punctuality != 'None' else -1 
+            'punctuality': [float(punctuality) / 100 if punctuality != 'None' else -1 
                 for punctuality in option_data[7].split()]
         }
 
@@ -41,18 +43,32 @@ with open('data/routes.csv') as routes_file:
 
         stations[station_id].append(option)
 
+
+# Calculate max number of options
+max_num_options = 0
+for station_id in stations:
+    if len(stations[station_id]) > max_num_options:
+        max_num_options = len(stations[station_id])
+ 
+
+# Calculate scores
 scores = {}
 
 for station_id in stations:
     scores[station_id] = {}
 
-    # Crowd scores: the score for the most crowded leg of each option
+    # Crowd scores: (crowd score for the most crowded leg) for each option
     scores[station_id]['c'] = [max(option['crowd']) for option in stations[station_id]]
 
-    # Duration scores: (minutes to get to ASD) / 120 for each option
+    # Duration scores: ((minutes to get to ASD) / 120) for each option
     scores[station_id]['d'] = [option['minutes'].seconds / (60 * 120) 
         for option in stations[station_id]]
+    
+    # Flexibility score: (number of options) / (max number of options)
+    scores[station_id]['f'] = len(stations[station_id]) / max_num_options
 
-    break
+    # Punctuality score: prod(punctuality of each leg) for each option
+    scores[station_id]['p'] = [np.prod(option['punctuality'])
+        for option in stations[station_id]]
 
-pprint(scores)
+pprint(scores['AH'])
