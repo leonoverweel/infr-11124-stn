@@ -44,12 +44,16 @@ with open('data/routes.csv') as routes_file:
         stations[station_id].append(option)
 
 
-# Calculate max number of options
+# Calculate max number of options and switches
 max_num_options = 0
+max_num_switches = 0
 for station_id in stations:
     if len(stations[station_id]) > max_num_options:
         max_num_options = len(stations[station_id])
- 
+    for option in stations[station_id]:
+        if len(option['legs']) - 1 > max_num_switches:
+            max_num_switches = len(option['legs']) - 1
+
 
 # Calculate scores
 scores = {}
@@ -69,6 +73,10 @@ for station_id in stations:
 
     # Punctuality score: prod(punctuality of each leg) for each option
     scores[station_id]['p'] = [np.prod(option['punctuality'])
+        for option in stations[station_id]]
+
+    # Switches score: (number of switches) / (max number of switches) for each option
+    scores[station_id]['s'] = [(len(option['legs']) - 1) / max_num_switches
         for option in stations[station_id]]
 
 pprint(scores['AH'])
