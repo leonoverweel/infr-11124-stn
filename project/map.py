@@ -21,7 +21,6 @@ def get_station_data(alphas):
         alpha_p=alphas['p'],
         alpha_s=alphas['s']
     ).items() if score != -1}
-    min_score = 1000
     max_score = 0
 
     with open('data/stations.csv') as stations_file:
@@ -33,8 +32,6 @@ def get_station_data(alphas):
                 continue
             score = station_scores[station[0]]
 
-            if score < min_score:
-                min_score = score
             if score > max_score:
                 max_score = score
 
@@ -42,7 +39,7 @@ def get_station_data(alphas):
             lats.append(float(station[3]))
             scores.append(station_scores[station[0]])
 
-    return longs, lats, scores, min_score, max_score, station_scores
+    return longs, lats, scores, max_score, station_scores
 
 
 def plot_netherlands(ax):
@@ -56,7 +53,7 @@ def plot_netherlands(ax):
     )
 
 
-def plot_stations(ax, lats, longs, scores, min_score, max_score):
+def plot_stations(ax, lats, longs, scores, max_score):
     cdict = {
         'red': (
             (0.0, 0, 0),
@@ -77,7 +74,7 @@ def plot_stations(ax, lats, longs, scores, min_score, max_score):
         np.array(longs), 
         c=scores,
         cmap=cmap,
-        vmin=min_score,
+        vmin=0,
         vmax=max_score,
         s=10,
         transform=ccrs.PlateCarree(), 
@@ -88,12 +85,12 @@ def plot_stations(ax, lats, longs, scores, min_score, max_score):
 # Get data
 alphas = {
     'c': 0,
-    'd': 0,
-    'f': 1,
+    'd': 1,
+    'f': 0,
     'p': 0,
     's': 0
 }
-longs, lats, scores, min_score, max_score, station_scores = get_station_data(alphas)
+longs, lats, scores, max_score, station_scores = get_station_data(alphas)
 
 # Set up axes
 plt.figure(figsize=(4,4.5))
@@ -101,7 +98,7 @@ ax = plt.axes(projection=ccrs.PlateCarree(), frameon=False)
 
 # Plot stuff
 plot_netherlands(ax)
-plot_stations(ax, lats, longs, scores, min_score, max_score)
+plot_stations(ax, lats, longs, scores, max_score)
 
 # Make figure pretty
 plt.gca().outline_patch.set_visible(False)
