@@ -4,6 +4,15 @@ from pprint import pprint
 
 import numpy as np
 
+
+def calculate_score(c, alpha_c, d, alpha_d, f, alpha_f, p, alpha_p, s, alpha_s):
+    return c * alpha_c \
+        + d * alpha_d \
+        + (1 - f) * alpha_f \
+        + p * alpha_p \
+        + s * alpha_s
+
+
 # Read in routes.csv
 CROWD_MAP = {
     'LOW': 0,
@@ -22,7 +31,7 @@ with open('data/routes.csv') as routes_file:
         if not station_id in stations:
             stations[station_id] = []
         
-        option = {
+        subs = {
             'option_id': option_data[1],
             'depart': datetime.strptime(option_data[2], '%H:%M').time(),
             'arrive': datetime.strptime(option_data[3], '%H:%M').time(),
@@ -34,14 +43,14 @@ with open('data/routes.csv') as routes_file:
         }
 
         # Filter on arriving between 8:00 and 9:00
-        if option['arrive'] < time(hour=8) or option['arrive'] > time(hour=9):
+        if subs['arrive'] < time(hour=8) or subs['arrive'] > time(hour=9):
             continue
         
         # Filter on travel time <= 2 hours
-        if option['minutes'] > timedelta(minutes=120):
+        if subs['minutes'] > timedelta(minutes=120):
             continue
 
-        stations[station_id].append(option)
+        stations[station_id].append(subs)
 
 
 # Calculate max number of options and switches
@@ -50,33 +59,58 @@ max_num_switches = 0
 for station_id in stations:
     if len(stations[station_id]) > max_num_options:
         max_num_options = len(stations[station_id])
-    for option in stations[station_id]:
-        if len(option['legs']) - 1 > max_num_switches:
-            max_num_switches = len(option['legs']) - 1
+    for subs in stations[station_id]:
+        if len(subs['legs']) - 1 > max_num_switches:
+            max_num_switches = len(subs['legs']) - 1
 
 
-# Calculate scores
-scores = {}
+# Calculate subscores
+sub_scores = {}
 
 for station_id in stations:
-    scores[station_id] = {}
+    sub_scores[station_id] = {}
 
     # Crowd scores: (crowd score for the most crowded leg) for each option
-    scores[station_id]['c'] = [max(option['crowd']) for option in stations[station_id]]
+    sub_scores[station_id]['c'] = [max(subs['crowd']) for subs in stations[station_id]]
 
     # Duration scores: ((minutes to get to ASD) / 120) for each option
-    scores[station_id]['d'] = [option['minutes'].seconds / (60 * 120) 
-        for option in stations[station_id]]
+    sub_scores[station_id]['d'] = [subs['minutes'].seconds / (60 * 120) 
+        for subs in stations[station_id]]
     
     # Flexibility score: (number of options) / (max number of options)
-    scores[station_id]['f'] = len(stations[station_id]) / max_num_options
+    sub_scores[station_id]['f'] = len(stations[station_id]) / max_num_options
 
     # Punctuality score: prod(punctuality of each leg) for each option
-    scores[station_id]['p'] = [np.prod(option['punctuality'])
-        for option in stations[station_id]]
+    sub_scores[station_id]['p'] = [np.prod(subs['punctuality'])
+        for subs in stations[station_id]]
 
     # Switches score: (number of switches) / (max number of switches) for each option
-    scores[station_id]['s'] = [(len(option['legs']) - 1) / max_num_switches
-        for option in stations[station_id]]
+    sub_scores[station_id]['s'] = [(len(subs['legs']) - 1) / max_num_switches
+        for subs in stations[station_id]]
 
-pprint(scores['AH'])
+
+# Calculate final scores per option
+scores = {}
+
+alphas = {
+    'c': 1,
+    'd': 1,
+    'f': 1,
+    'p': 1,
+    's': 1
+}
+
+for station_id in sub_scores:
+    subs = sub_scores[station_id]
+
+    scores[station_id] = [calculate_score(
+        subs['c'][i], alphas['c'],
+        subs['d'][i], alphas['d'],
+        subs['f'], alphas['f'],
+        subs['p'][i], alphas['p'],
+        subs['s'][i], alphas['s']
+    ) for i in range(len(subs['c']))]
+
+    break
+
+print(scores)
