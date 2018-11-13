@@ -21,7 +21,6 @@ def get_station_data(alphas):
         alpha_p=alphas['p'],
         alpha_s=alphas['s']
     ).items() if score != -1}
-    max_score = 0
 
     with open('data/stations.csv') as stations_file:
         station_reader = csv.reader(stations_file)
@@ -32,14 +31,11 @@ def get_station_data(alphas):
                 continue
             score = station_scores[station[0]]
 
-            if score > max_score:
-                max_score = score
-
             longs.append(float(station[2]))
             lats.append(float(station[3]))
             scores.append(station_scores[station[0]])
 
-    return longs, lats, scores, max_score, station_scores
+    return longs, lats, scores, station_scores
 
 
 def plot_netherlands(ax):
@@ -81,6 +77,10 @@ def plot_stations(ax, lats, longs, scores, max_score):
         zorder=2
     )
 
+    # Delft
+    # ax.scatter(np.array([4.35638904571533]), np.array([52.0066680908203]), s=0.2, c='k',
+    #           transform=ccrs.PlateCarree(), zorder=3)
+
 
 # Get data
 alphas = {
@@ -90,7 +90,9 @@ alphas = {
     'p': 0,
     's': 0
 }
-longs, lats, scores, max_score, station_scores = get_station_data(alphas)
+max_score = sum(alphas.values())
+
+longs, lats, scores, station_scores = get_station_data(alphas)
 
 # Set up axes
 plt.figure(figsize=(4,4.5))
@@ -109,7 +111,7 @@ ax.set_extent([3.1, 7.5, 50.6, 53.7], crs=ccrs.PlateCarree())
 ax.set_aspect('auto')
 
 # Save figure
-fig_key = 'c{c}-d{d}-f{f}-s{s}-p{p}'.format_map(alphas)
+fig_key = 'c{c}-d{d}-f{f}-p{p}-s{s}'.format_map(alphas)
 plt.savefig('data/plots/' + fig_key + '.pdf')
 plt.show()
 
