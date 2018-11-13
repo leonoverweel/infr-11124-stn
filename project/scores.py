@@ -104,10 +104,6 @@ def get_scores(alpha_c, alpha_d, alpha_f, alpha_p, alpha_s):
             subs['s'][i], alpha_s
         ) for i in range(len(subs['c']))]
 
-        if station_id == 'HIL':
-            print(subs)
-            print(option_scores)
-
         if len(option_scores) > 0:
             scores[station_id] = min(option_scores)
         else:

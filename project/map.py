@@ -87,9 +87,9 @@ def plot_stations(ax, lats, longs, scores, min_score, max_score):
 
 # Get data
 alphas = {
-    'c': 1,
+    'c': 0,
     'd': 0,
-    'f': 0,
+    'f': 1,
     'p': 0,
     's': 0
 }
@@ -122,5 +122,3 @@ with open('data/rankings/' + fig_key + '.txt', 'w') as outfile:
     outfile.write('Station,Score\n')
     for station_id in best_stations:
         outfile.write('{},{:.4f}\n'.format(station_id, station_scores[station_id]))
-
-print(best_stations[:10])
