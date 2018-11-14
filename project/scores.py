@@ -17,7 +17,7 @@ def _calculate_score(c, alpha_c, d, alpha_d, f, alpha_f, p, alpha_p, s, alpha_s)
     return c * alpha_c \
         + d * alpha_d \
         + (1 - f) * alpha_f \
-        + p * alpha_p \
+        + (1 - p) * alpha_p \
         + s * alpha_s
 
 
@@ -42,7 +42,7 @@ def get_scores(alpha_c, alpha_d, alpha_f, alpha_p, alpha_s):
                 'minutes': timedelta(minutes=int(option_data[4])),
                 'legs': [tuple(leg.split('->')) for leg in option_data[5].split()],
                 'crowd': [CROWD_MAP[crowd] for crowd in option_data[6].split()],
-                'punctuality': [float(punctuality) / 100 if punctuality != 'None' else -1 
+                'punctuality': [float(punctuality) / 100 if punctuality != 'None' else 1
                     for punctuality in option_data[7].split()]
             }
 
