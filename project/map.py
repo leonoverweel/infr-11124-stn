@@ -41,7 +41,6 @@ def get_station_data(alphas):
 def plot_netherlands(ax):
     df = geopandas.read_file('data/ne_10m_admin_0_countries')
     poly = df.loc[df['ADMIN'] == 'Netherlands']['geometry'].values[0]
-
     ax.add_geometries(
         poly, 
         crs=ccrs.PlateCarree(), 
@@ -83,12 +82,14 @@ def plot_stations(ax, lats, longs, scores, max_score):
 
 
 # Get data
+save_data = True
+
 alphas = {
     'c': 0,
-    'd': 1,
+    'd': 0,
     'f': 0,
     'p': 0,
-    's': 0
+    's': 1
 }
 max_score = sum(alphas.values())
 
@@ -110,14 +111,17 @@ plt.title('$\\alpha_c = {c}; \\alpha_d = {d}; \\alpha_f = {f}; \\alpha_p = {p}; 
 ax.set_extent([3.1, 7.5, 50.6, 53.7], crs=ccrs.PlateCarree())
 ax.set_aspect('auto')
 
-# Save figure
-fig_key = 'c{c}-d{d}-f{f}-p{p}-s{s}'.format_map(alphas)
-plt.savefig('data/plots/' + fig_key + '.pdf')
-plt.show()
+# Save data
+if save_data:
 
-# Save ranking
-best_stations = sorted(station_scores, key=station_scores.get)
-with open('data/rankings/' + fig_key + '.txt', 'w') as outfile:
-    outfile.write('Station,Score\n')
-    for station_id in best_stations:
-        outfile.write('{},{:.4f}\n'.format(station_id, station_scores[station_id]))
+    # Save figure
+    fig_key = 'c{c}-d{d}-f{f}-p{p}-s{s}'.format_map(alphas)
+    plt.savefig('data/plots/' + fig_key + '.pdf')
+    plt.show()
+
+    # Save ranking
+    best_stations = sorted(station_scores, key=station_scores.get)
+    with open('data/rankings/' + fig_key + '.txt', 'w') as outfile:
+        outfile.write('Station,Score\n')
+        for station_id in best_stations:
+            outfile.write('{},{:.4f}\n'.format(station_id, station_scores[station_id]))
