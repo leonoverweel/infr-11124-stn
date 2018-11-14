@@ -29,7 +29,6 @@ def get_station_data(alphas):
         for station in station_reader:
             if station[0] not in station_scores:
                 continue
-            score = station_scores[station[0]]
 
             longs.append(float(station[2]))
             lats.append(float(station[3]))
@@ -67,18 +66,18 @@ def plot_stations(ax, lats, longs, scores, max_score):
     ax.scatter(
         np.array(lats), 
         np.array(longs), 
-        c=scores,
+        c=[(s / max_score) for s in scores],
         cmap=cmap,
         vmin=0,
-        vmax=max_score,
+        vmax=1,
         s=8,
         transform=ccrs.PlateCarree(), 
         zorder=2
     )
 
-    # Dordrecht
-    # ax.scatter(np.array([4.66833353042603]), np.array([51.8072204589844]), s=0.2, c='k',
-    #    transform=ccrs.PlateCarree(), zorder=3)
+    # Amsterdam Centraal
+    ax.scatter(np.array([4.90027761459351]), np.array([52.3788871765137]), s=20, c='k',
+       transform=ccrs.PlateCarree(), zorder=3)
 
 
 # Get data
@@ -106,9 +105,11 @@ plot_stations(ax, lats, longs, scores, max_score)
 # Make figure pretty
 plt.gca().outline_patch.set_visible(False)
 plt.rcParams.update({'mathtext.default': 'regular'})
-plt.title('$\\alpha_c = {c}; \\alpha_d = {d}; \\alpha_f = {f}; \\alpha_p = {p}; \\alpha_s = {s}$'.format_map(alphas))
+plt.title('$\\alpha_c = {c}; \\alpha_d = {d}; \\alpha_f = {f}; \\alpha_p = {p}; \\alpha_s = {s}$'.format_map(alphas),
+          y=0.95)
+plt.tight_layout()
 
-ax.set_extent([3.1, 7.5, 50.6, 53.7], crs=ccrs.PlateCarree())
+ax.set_extent([3.3, 7.2, 50.7, 53.8], crs=ccrs.PlateCarree())
 ax.set_aspect('auto')
 
 # Save data
@@ -123,7 +124,7 @@ if save_data:
     with open('data/rankings/' + fig_key + '.txt', 'w') as outfile:
         outfile.write('Station,Score\n')
         for station_id in best_stations:
-            outfile.write('{},{:.4f}\n'.format(station_id, station_scores[station_id]))
+            outfile.write('{},{:.4f}\n'.format(station_id, station_scores[station_id] / max_score))
 
 # Show figure
 plt.show()
