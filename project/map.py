@@ -71,25 +71,25 @@ def plot_stations(ax, lats, longs, scores, max_score):
         cmap=cmap,
         vmin=0,
         vmax=max_score,
-        s=10,
+        s=8,
         transform=ccrs.PlateCarree(), 
         zorder=2
     )
 
-    # Delft
-    # ax.scatter(np.array([4.35638904571533]), np.array([52.0066680908203]), s=0.2, c='k',
-    #           transform=ccrs.PlateCarree(), zorder=3)
+    # Dordrecht
+    # ax.scatter(np.array([4.66833353042603]), np.array([51.8072204589844]), s=0.2, c='k',
+    #    transform=ccrs.PlateCarree(), zorder=3)
 
 
 # Get data
 save_data = True
 
 alphas = {
-    'c': 0,
-    'd': 0,
-    'f': 0,
-    'p': 0,
-    's': 1
+    'c': 5,
+    'd': 3,
+    'f': 1,
+    'p': 1,
+    's': 2
 }
 max_score = sum(alphas.values())
 
@@ -117,7 +117,6 @@ if save_data:
     # Save figure
     fig_key = 'c{c}-d{d}-f{f}-p{p}-s{s}'.format_map(alphas)
     plt.savefig('data/plots/' + fig_key + '.pdf')
-    plt.show()
 
     # Save ranking
     best_stations = sorted(station_scores, key=station_scores.get)
@@ -125,3 +124,6 @@ if save_data:
         outfile.write('Station,Score\n')
         for station_id in best_stations:
             outfile.write('{},{:.4f}\n'.format(station_id, station_scores[station_id]))
+
+# Show figure
+plt.show()
